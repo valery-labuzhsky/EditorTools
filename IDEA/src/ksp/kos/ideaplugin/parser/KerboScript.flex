@@ -104,7 +104,9 @@ LAZYGLOBAL=lazyglobal
 //[Skip]
 WHITESPACE=[\ \n\r\t]+
 //[Skip]
-COMMENTLINE=\/\/[^\n]*\n?
+COMMENTLINE=\/\/[^\n]*
+
+%xstate E
 
 %%
 
@@ -112,7 +114,9 @@ COMMENTLINE=\/\/[^\n]*\n?
 {MULT}    {return KerboScriptTypes.MULT;}
 {DIV}    {return KerboScriptTypes.DIV;}
 {POWER}    {return KerboScriptTypes.POWER;}
-{E}    {return KerboScriptTypes.E;}
+{INTEGER}/{E}    {yybegin(E); return KerboScriptTypes.INTEGER;}
+{DOUBLE}/{E}    {yybegin(E); return KerboScriptTypes.DOUBLE;}
+<E> {E}    {yybegin(YYINITIAL); return KerboScriptTypes.E;}
 //Logic
 {NOT}    {return KerboScriptTypes.NOT;}
 {AND}    {return KerboScriptTypes.AND;}
