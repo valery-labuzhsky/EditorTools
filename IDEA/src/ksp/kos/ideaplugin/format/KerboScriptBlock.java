@@ -42,9 +42,10 @@ public class KerboScriptBlock extends AbstractBlock {
     @Override
     public Indent getIndent() {
         PsiElement psi = getNode().getPsi();
-        if (psi.getParent() == null || psi.getParent() instanceof KerboScriptFile) {
+        final PsiElement parent = psi.getParent();
+        if (parent == null || parent instanceof KerboScriptFile) {
             return Indent.getNoneIndent();
-        } else if (psi.getParent() instanceof KerboScriptInstructionBlock) {
+        } else if (parent instanceof KerboScriptInstructionBlock) {
             if (psi instanceof KerboScriptInstruction) {
                 return Indent.getNormalIndent();
             } else {

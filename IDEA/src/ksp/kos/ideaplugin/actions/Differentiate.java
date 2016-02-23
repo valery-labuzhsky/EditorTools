@@ -3,8 +3,10 @@ package ksp.kos.ideaplugin.actions;
 import com.intellij.lang.ASTFactory;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import ksp.kos.ideaplugin.expressions.Expression;
 import ksp.kos.ideaplugin.expressions.SyntaxException;
 import ksp.kos.ideaplugin.psi.*;
@@ -17,11 +19,14 @@ import ksp.kos.ideaplugin.psi.*;
 public class Differentiate extends BaseAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
+        final Project project = getEventProject(event);
+        if (project == null) return;
         KerboScriptExpr expr = getDifferentiable(event);
         if (expr != null) {
-            WriteCommandAction.runWriteCommandAction(getEventProject(event), () -> {
+            WriteCommandAction.runWriteCommandAction(project, () -> {
                 try {
-                    KerboScriptInstruction parent = expr.walkUpTill(KerboScriptInstruction.class);
+                    KerboScriptInstruction parent = PsiTreeUtil.getParentOfType(expr, KerboScriptInstruction.class, false);
+                    if (parent == null) return;
                     if (!(parent instanceof KerboScriptReturnStmt)) {
                         PsiElement copy = parent.copy();
                         copy.getNode().addChild(ASTFactory.whitespace("\n"));
@@ -33,9 +38,9 @@ public class Differentiate extends BaseAction {
                             }
                         }
                     }
-                    expr.replace(KerboScriptElementFactory.expression(getEventProject(event), diff(expr)));
+                    expr.replace(KerboScriptElementFactory.expression(project, diff(expr)));
                 } catch (ActionFailedException e) {
-                    Messages.showDialog(e.getMessage(), "Failed:", new String[]{"OK"}, -1, null);
+                    Messages.showErrorDialog(project, "Exception:" +e.getMessage(), "Differentiate Action Failed");
                 }
             });
         }
@@ -55,7 +60,7 @@ public class Differentiate extends BaseAction {
     }
 
     private KerboScriptExpr getDifferentiable(AnActionEvent event) {
-        ExpressionHolder holder = KerboScriptBaseElement.walkUpTill(getPsiElement(event), ExpressionHolder.class);
+        ExpressionHolder holder = PsiTreeUtil.getParentOfType(getPsiElement(event), ExpressionHolder.class, false);
         if (holder == null) {
             return null;
         }
