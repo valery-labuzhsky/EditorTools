@@ -19,7 +19,7 @@ public class KerboScriptFormattingModelBuilder implements FormattingModelBuilder
     @Override
     public FormattingModel createModel(PsiElement element, CodeStyleSettings settings) {
         return FormattingModelProvider.createFormattingModelForPsiFile(element.getContainingFile(),
-                new KerboScriptBlock(element.getNode(), null, null), settings);
+                new KerboScriptBlock(element.getNode(), null, null, Indent.getNoneIndent()), settings);
     }
 
     @Nullable
