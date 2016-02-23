@@ -68,3 +68,7 @@ gradle-app.setting
 
 ### Custom ignores
 *~
+# Generated sources
+gen
+# sanbox for 'runIdea' gradle task
+idea-sandbox

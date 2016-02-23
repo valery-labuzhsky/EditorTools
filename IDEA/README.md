@@ -8,12 +8,19 @@ Current kOS version supported: 0.18.2
 1. Install "KerboScript(kOS)" plugin. [Plugins installation instruction.](
 https://www.jetbrains.com/idea/help/installing-updating-and-uninstalling-repository-plugins.html)
 
-###COMPILE###
+###BUILDING###
+Project uses [Gradle](https://gradle.org/) build system and [gradle-intellij-plugin](https://github.com/jetbrains/gradle-intellij-plugin)
+To build project just run `./gradlew build` (Linux/OSX) or `gradlew.bat build` (Windows)
+Built plugin distribution would be in `build/distributions/` directory.
+
+###EDITING###
+It's recommended to use IntelliJ IDEA to edit sources, but you may use your favorite IDE (better with Gradle support)
 0. Follow [prerequisites steps](
 http://www.jetbrains.org/intellij/sdk/docs/tutorials/custom_language_support/prerequisites.html)
-1. Choose IDEA folder for the new project folder
-2. Open KerboScript.bnf file and generate grammar parser (Ctrl + Shift + G)
-3. Open KerboScript.flex file and generate lexer (Ctrl + Shift + G). First time IDEA may ask you to choose place for
-JFlex libraries. Choose any directory, e.g. project directory.
-4. Mark gen folder as source or generated source folder
-5. Run the plugin
+with exception that you don't need to clone IntelliJ sources
+1. Import gradle project in IDEA folder in your IntelliJ IDEA
+2. Develop
+3. If you need to regenerate parser, psi model or lexer from .bnf, .flex files,
+ run 'generateSources' gradle task. Also that task would be runner on 'build'.
+4. Build plugin with 'build' gradle task
+5. Run separate IDEA with plugin with 'runIdea' gradle task

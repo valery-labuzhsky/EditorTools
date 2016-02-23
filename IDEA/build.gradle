@@ -1,0 +1,185 @@
+import java.nio.file.Path
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "http://repository.jetbrains.com/repo/" }
+    }
+}
+
+plugins {
+    id "org.jetbrains.intellij" version "0.0.39"
+    id "de.undercouch.download" version "2.1.0"
+}
+
+version = '0.1.2'
+
+if (System.hasProperty('build.number')) {
+    version = "$version.${System.getProperty("build.number")}"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    maven { url "http://repository.jetbrains.com/repo/" }
+}
+
+apply plugin: 'org.jetbrains.intellij'
+
+intellij {
+    version '14.1.5'
+    pluginName 'kos-ksp.idea-plugin'
+    sandboxDirectory = "${project.projectDir}/idea-sandbox"
+    updateSinceUntilBuild = false
+
+    publish {
+        pluginId '8130'
+//        username ''
+//        password ''
+//        channel ''
+    }
+}
+
+// To prevent weird classpath problems in idea
+clean {
+    delete "${intellij.sandboxDirectory}/plugins/${intellij.pluginName}"
+}
+
+dependencies {
+}
+
+// TODO: IntelliJ 141 based on 1.6, so there may be some user with IntelliJ running on Java <1.8, but probability is quite low
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src', 'gen'
+        }
+        resources {
+            srcDir 'resources'
+        }
+    }
+    test {
+        java {
+            srcDir 'test'
+        }
+        resources {
+            srcDir 'test-data'
+        }
+    }
+}
+
+// Some GrammarKit & JFlex magic:
+// This code is ugly but it works.
+// TODO: Replace with some plugin (write it first ;)
+
+// Let's download Grammar-Kit and JFlex first. Unfortunately they're not available in Maven/Ivy
+def grammarKirDir = new File("$buildDir/grammar-kit/")
+def jFlexDir = new File("$buildDir/jflex/")
+
+task downloadGenerators << {
+    grammarKirDir.mkdirs()
+    jFlexDir.mkdirs()
+    download {
+        src(['https://github.com/JetBrains/Grammar-Kit/releases/download/1.2.0.1/GrammarKit.zip',
+             'https://github.com/JetBrains/Grammar-Kit/releases/download/1.2.0.1/light-psi-all.jar'])
+        dest file(grammarKirDir)
+        onlyIfNewer = true
+    }
+    download {
+        src(['https://github.com/JetBrains/intellij-community/raw/master/tools/lexer/jflex-1.4/lib/JFlex.jar',
+             'https://github.com/JetBrains/intellij-community/raw/master/tools/lexer/idea-flex.skeleton'])
+        dest file(jFlexDir)
+        onlyIfNewer = true
+    }
+    copy {
+        from zipTree(new File(grammarKirDir, "GrammarKit.zip"))
+        into file(new File(grammarKirDir, "tmp"))
+    }
+    copy {
+        from file(new File(grammarKirDir, "tmp/GrammarKit/lib/"))
+        into file(grammarKirDir)
+    }
+}
+
+configurations {
+    grammarkit
+    jflex
+}
+
+repositories {
+    flatDir(name: "GrammarKit", dir: grammarKirDir)
+    flatDir(name: "JFlex", dir: jFlexDir)
+}
+
+dependencies {
+    grammarkit name: "grammar-kit"
+    grammarkit name: "light-psi-all"
+    jflex ":jflex"
+}
+
+task generateParser(type: JavaExec, dependsOn: downloadGenerators) {
+    ext {
+        bnfFiles = fileTree(dir: "$rootDir/src", include: "**/*.bnf")
+        outputDir = file("$rootDir/gen")
+    }
+
+    inputs.files bnfFiles.getFiles()
+    outputs.dir outputDir
+
+    main = 'org.intellij.grammar.Main'
+
+    classpath = configurations.grammarkit
+
+    args outputDir
+    args bnfFiles.getFiles()
+}
+
+// Due to JFlex limitation in output directory processing this task can process only one file
+task generateLexer(type: JavaExec, dependsOn: downloadGenerators) {
+    ext {
+        flexFile = fileTree(dir: "$rootDir/src", include: "**/*.flex").getSingleFile()
+        outputDir = file("$rootDir/gen")
+        skeleton = new File(jFlexDir, "idea-flex.skeleton")
+    }
+
+    // Setup output directory properly.
+
+    Path relativeToSourcesRoot = file("$rootDir/src").toPath().relativize(flexFile.toPath().getParent())
+    File output = outputDir.toPath().resolve(relativeToSourcesRoot).toFile()
+    inputs.file flexFile
+    outputs.dir output
+
+    main = 'JFlex.Main'
+
+    classpath = configurations.jflex
+/*
+"C:\Program Files (x86)\JetBrains\IntelliJ IDEA 15.0.3\jre\jre\bin\java"
+-Xmx512m -Dfile.encoding=windows-1252
+-classpath D:\Devel\intellij-plugins\KOS-EditorTools\IDEA\lib\JFlex.jar
+JFlex.Main
+-sliceandcharat
+-skel D:\Devel\intellij-plugins\KOS-EditorTools\IDEA\lib\idea-flex.skeleton
+-d D:\Devel\intellij-plugins\KOS-EditorTools\IDEA\src\ksp\kos\ideaplugin\parser
+D:\Devel\intellij-plugins\KOS-EditorTools\IDEA\src\ksp\kos\ideaplugin\parser\KerboScript.flex
+ */
+    jvmArgs "-Xmx512m"
+    args "-sliceandcharat"
+    args "-skel", skeleton
+    args "-d", output
+    args flexFile
+}
+
+task generateSources(type: DefaultTask, dependsOn: [generateParser, generateLexer]) {
+}
+
+
+compileJava.dependsOn(generateSources)
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.11'
+}
