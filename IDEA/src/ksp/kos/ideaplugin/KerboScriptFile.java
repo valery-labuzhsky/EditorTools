@@ -1,6 +1,7 @@
 package ksp.kos.ideaplugin;
 
 import com.intellij.extapi.psi.PsiFileBase;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -32,13 +33,15 @@ public class KerboScriptFile extends PsiFileBase implements KerboScriptScope {
 
     public KerboScriptFile(@NotNull FileViewProvider viewProvider) {
         super(viewProvider, KerboScriptLanguage.INSTANCE);
-        DumbService.getInstance(getProject()).runWhenSmart(() -> {
-            VirtualFile virtualFile = getVirtualFile();
-            if (virtualFile != null) {
-                WolfTheProblemSolver wolf = WolfTheProblemSolver.getInstance(getProject());
-                wolf.queue(virtualFile);
-            }
-        });
+        if (!ApplicationManager.getApplication().isUnitTestMode()) {
+            DumbService.getInstance(getProject()).runWhenSmart(() -> {
+                VirtualFile virtualFile = getVirtualFile();
+                if (virtualFile != null) {
+                    WolfTheProblemSolver wolf = WolfTheProblemSolver.getInstance(getProject());
+                    wolf.queue(virtualFile);
+                }
+            });
+        }
     }
 
     @NotNull
