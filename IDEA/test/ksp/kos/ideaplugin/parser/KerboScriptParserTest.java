@@ -41,4 +41,8 @@ public class KerboScriptParserTest extends ParsingTestCase {
     public void testSimple_function_call() throws Exception {
         doTest();
     }
+
+    public void testNumbers() throws Exception {
+        doTest();
+    }
 }
