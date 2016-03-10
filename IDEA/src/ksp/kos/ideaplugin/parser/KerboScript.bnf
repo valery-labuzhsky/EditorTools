@@ -28,7 +28,9 @@
     extends("function_trailer|array_trailer")=suffixterm_trailer
     extends("[a-z]*_expr|factor|suffix|suffixterm|atom|.*number")=expr
 
-    tokens=[COMMENTLINE="COMMENTLINE"]
+    tokens = [
+        COMMENTLINE='regexp://[^\n]*'
+    ]
 }
 
 // Rules

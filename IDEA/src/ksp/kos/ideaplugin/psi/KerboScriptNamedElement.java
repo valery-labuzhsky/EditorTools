@@ -14,5 +14,6 @@ public interface KerboScriptNamedElement extends PsiNameIdentifierOwner, KerboSc
     String getRawName();
 
     void setType(NamedType type);
+
     void rawRename(String name);
 }

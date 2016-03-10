@@ -1,0 +1,11 @@
+FILE
+  KerboScriptPrintStmtImpl(PRINT_STMT)
+    PsiElement(PRINT)('print')
+    KerboScriptSuffixtermImpl(SUFFIXTERM)
+      KerboScriptAtomImpl(ATOM)
+        PsiElement(BRACKETOPEN)('(')
+        KerboScriptSuffixtermImpl(SUFFIXTERM)
+          KerboScriptAtomImpl(ATOM)
+            PsiElement(STRING)('"Hello, world!"')
+        PsiElement(BRACKETCLOSE)(')')
+    PsiElement(EOI)('.')

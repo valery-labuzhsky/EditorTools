@@ -8,6 +8,9 @@ import ksp.kos.ideaplugin.psi.KerboScriptElementFactory;
 import ksp.kos.ideaplugin.psi.KerboScriptNamedElement;
 import ksp.kos.ideaplugin.psi.KerboScriptTypes;
 import ksp.kos.ideaplugin.reference.*;
+import ksp.kos.ideaplugin.psi.KerboScriptNamedElement;
+import ksp.kos.ideaplugin.psi.KerboScriptTypes;
+import ksp.kos.ideaplugin.reference.*;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -151,7 +154,7 @@ public class KerboScriptNamedElementImpl extends ASTWrapperPsiElement implements
     @Override
     public PsiElement getNavigationElement() {
         PsiElement nameIdentifier = getNameIdentifier();
-        if (nameIdentifier!=null) return nameIdentifier;
+        if (nameIdentifier != null) return nameIdentifier;
         return super.getNavigationElement();
     }
 

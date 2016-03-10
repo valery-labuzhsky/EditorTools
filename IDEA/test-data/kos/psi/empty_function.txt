@@ -1,0 +1,10 @@
+FILE
+  KerboScriptDeclareStmtImpl(DECLARE_STMT)
+    KerboScriptDeclareFunctionClauseImpl(DECLARE_FUNCTION_CLAUSE)
+      PsiElement(FUNCTION)('function')
+      PsiWhiteSpace(' ')
+      PsiElement(IDENTIFIER)('foo')
+      PsiWhiteSpace(' ')
+      KerboScriptInstructionBlockImpl(INSTRUCTION_BLOCK)
+        PsiElement(CURLYOPEN)('{')
+        PsiElement(CURLYCLOSE)('}')

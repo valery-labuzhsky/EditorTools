@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.CachedValue;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.psi.util.PsiTreeUtil;
 import ksp.kos.ideaplugin.KerboScriptFile;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,26 +21,7 @@ public interface KerboScriptBaseElement extends PsiElement {
     }
 
     default KerboScriptScope getScope() {
-        PsiElement parent = getParent();
-        while (!(parent instanceof KerboScriptScope)) {
-            parent = parent.getParent();
-        }
-        return (KerboScriptScope) parent;
-    }
-
-    @SuppressWarnings("unchecked")
-    static <P> P walkUpTill(PsiElement element, Class<P> clazz) {
-        while (element!=null) {
-            if (clazz.isInstance(element)) {
-                return (P) element;
-            }
-            element = element.getParent();
-        }
-        return null;
-    }
-
-    default <P> P walkUpTill(Class<P> clazz) {
-        return walkUpTill(this, clazz);
+        return PsiTreeUtil.getParentOfType(this, KerboScriptScope.class, true);
     }
 
     @NotNull

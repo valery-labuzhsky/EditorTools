@@ -1,6 +1,7 @@
 package ksp.kos.ideaplugin;
 
 import com.intellij.extapi.psi.PsiFileBase;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -11,7 +12,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScopesCore;
-import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.indexing.FileBasedIndex;
 import ksp.kos.ideaplugin.psi.KerboScriptNamedElement;
 import ksp.kos.ideaplugin.psi.KerboScriptPsiWalker;
@@ -33,34 +33,21 @@ public class KerboScriptFile extends PsiFileBase implements KerboScriptScope {
 
     public KerboScriptFile(@NotNull FileViewProvider viewProvider) {
         super(viewProvider, KerboScriptLanguage.INSTANCE);
-        DumbService.getInstance(getProject()).runWhenSmart(() -> {
-            VirtualFile virtualFile = getVirtualFile();
-            if (virtualFile != null) {
-                WolfTheProblemSolver wolf = WolfTheProblemSolver.getInstance(getProject());
-                wolf.queue(virtualFile);
-            }
-        });
+        if (!ApplicationManager.getApplication().isUnitTestMode()) {
+            DumbService.getInstance(getProject()).runWhenSmart(() -> {
+                VirtualFile virtualFile = getVirtualFile();
+                if (virtualFile != null) {
+                    WolfTheProblemSolver wolf = WolfTheProblemSolver.getInstance(getProject());
+                    wolf.queue(virtualFile);
+                }
+            });
+        }
     }
 
     @NotNull
     @Override
     public FileType getFileType() {
         return KerboScriptFileType.INSTANCE;
-    }
-
-    @NotNull
-    @Override
-    public String getName() {
-        String name = super.getName();
-        if (name.endsWith(".ks")) {
-            name = name.substring(0, name.length() - 3);
-        }
-        return name;
-    }
-
-    @Override
-    public PsiElement setName(@NotNull String name) throws IncorrectOperationException {
-        return super.setName(name + ".ks");
     }
 
     @Override

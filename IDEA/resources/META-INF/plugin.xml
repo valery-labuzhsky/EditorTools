@@ -51,12 +51,14 @@ kOS version supported: 0.19.0
         <fileTypeFactory implementation="ksp.kos.ideaplugin.KerboScriptFileTypeFactory"/>
         <lang.parserDefinition language="KerboScript"
                                implementationClass="ksp.kos.ideaplugin.parser.KerboScriptParserDefinition"/>
-        <lang.syntaxHighlighterFactory language="KerboScript"
+        <lang.syntaxHighlighterFactory key="KerboScript"
                                        implementationClass="ksp.kos.ideaplugin.KerboScriptSyntaxHighlighterFactory"/>
         <lang.refactoringSupport language="KerboScript"
                                  implementationClass="ksp.kos.ideaplugin.KerboScriptRefactoringSupportProvider"/>
-        <lang.findUsagesProvider language="KerboScript" implementationClass="ksp.kos.ideaplugin.KerboScriptFindUsagesProvider"/>
-        <lang.formatter language="KerboScript" implementationClass="ksp.kos.ideaplugin.format.KerboScriptFormattingModelBuilder"/>
+        <lang.findUsagesProvider language="KerboScript"
+                                 implementationClass="ksp.kos.ideaplugin.KerboScriptFindUsagesProvider"/>
+        <lang.formatter language="KerboScript"
+                        implementationClass="ksp.kos.ideaplugin.format.KerboScriptFormattingModelBuilder"/>
         <problemFileHighlightFilter implementation="ksp.kos.ideaplugin.KerboScriptHighlightFilter"/>
         <refactoring.inlineHandler language="KerboScript" implementationClass="ksp.kos.ideaplugin.refactoring.VirtualCheckInlineHandler"/>
         <refactoring.inlineHandler language="KerboScript" implementationClass="ksp.kos.ideaplugin.refactoring.VariableInlineHandler"/>
